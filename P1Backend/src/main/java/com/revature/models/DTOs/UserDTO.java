@@ -1,39 +1,47 @@
 package com.revature.models.DTOs;
 
-//This is a data transfer object (DTO)
-//They are often used to model data that is being sent between client and server
-
 import com.revature.models.User;
 
-//In this case, we want to send User info without including the raw password
-//Yes, we could have just made a different constructor in the User class
-    //check the videogame DTOs for more examples of DTOs
-public class OutgoingUserDTO {
+public class UserDTO {
 
     private int userId;
+    private String firstName;
+    private String lastName;
     private String username;
     private String role;
 
     //Boilerplate-----------------------------------------------
 
 
-    public OutgoingUserDTO() {
+    public UserDTO() {
     }
 
-    public OutgoingUserDTO(int userId, String username, String role) {
+    public UserDTO(int userId, String firstName, String lastName, String username, String role) {
         this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
         this.role = role;
     }
 
-    public OutgoingUserDTO(User user) {
+    public UserDTO(User user) {
         this.userId = user.getUserId();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
         this.username = user.getUsername();
         this.role = user.getRole();
     }
 
     public int getUserId() {
         return userId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public String getUsername() {
@@ -48,6 +56,14 @@ public class OutgoingUserDTO {
         this.userId = userId;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -60,6 +76,8 @@ public class OutgoingUserDTO {
     public String toString() {
         return "OutgoingUserDTO{" +
                 "userId=" + userId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", username='" + username + '\'' +
                 ", role='" + role + '\'' +
                 '}';

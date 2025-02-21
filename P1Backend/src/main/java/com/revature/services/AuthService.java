@@ -1,10 +1,10 @@
 package com.revature.services;
 
 import com.revature.DAOs.UserDAO;
-import com.revature.models.DTOs.OutgoingUserDTO;
+import com.revature.models.DTOs.LoginDTO;
+import com.revature.models.DTOs.UserDTO;
 import com.revature.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 //The service layer is where we put our business logic
@@ -23,7 +23,7 @@ public class AuthService {
 
     //This method will take a User object and send it to the DAO
     //It will also return the User object to the controller
-    public OutgoingUserDTO registerUser(User user) {
+    public UserDTO registerUser(User user) {
         //Let's check input validation here
 
         //We use the save method to insert data into the DB
@@ -31,8 +31,10 @@ public class AuthService {
         User returnedUser = userDAO.save(user);
 
         //We need to convert the User to a UserDTO before we send it to the client
-        OutgoingUserDTO outUserDTO = new OutgoingUserDTO(
+        UserDTO outUserDTO = new UserDTO(
                 returnedUser.getUserId(),
+                returnedUser.getFirstName(),
+                returnedUser.getLastName(),
                 returnedUser.getUsername(),
                 returnedUser.getRole()
         );
@@ -40,7 +42,34 @@ public class AuthService {
         return outUserDTO;
     }
 
+    public UserDTO login(LoginDTO loginDTO){
+        //input validation
 
+        //Check if the username is null, or if it is only an empty string or space-only string
+        if(loginDTO.getUsername() == null || loginDTO.getUsername().isBlank()){
+            throw new IllegalArgumentException("Username cannot be empty!");
+        }
+
+        //Same for password
+        if(loginDTO.getPassword() == null || loginDTO.getPassword().isBlank()){
+            throw new IllegalArgumentException("Password cannot be empty!");
+        }
+
+        //TODO: could do more checks, but this will do for now
+
+        User returnedUser = userDAO.findByUsernameAndPassword(
+                loginDTO.getUsername(),
+                loginDTO.getPassword()).orElse(null);
+        //orElse(null) is a convenient way to extract data (or a null value from an Optional
+        //we could also use orElseThrow() to throw an Exception ourright, but I'll spell it out a bit
+
+        //If no User is found(if returnedUser is null), throw an Exception throw an Exception
+        if(returnedUser == null){
+            throw new IllegalArgumentException("Invalid username or password!");
+        }
+
+        return new UserDTO(returnedUser);
+    }
 
 
 }

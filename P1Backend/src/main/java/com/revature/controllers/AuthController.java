@@ -1,17 +1,18 @@
 package com.revature.controllers;
 
-import com.revature.models.DTOs.OutgoingUserDTO;
+import com.revature.models.DTOs.LoginDTO;
+import com.revature.models.DTOs.UserDTO;
 import com.revature.models.User;
 import com.revature.services.AuthService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-//AuthController? Think AUTHentication/AUTHorization
-//I like to put account registration and login functionality here
-@RestController //Combines @Controller and @ResponseBody (makes a class a bean, and lets us send JSON responses)
+
+@RestController
 @RequestMapping("/auth") //Requests ending in /auth will go to this Controller
-@CrossOrigin //This annotation will allow requests from anywhere (like our React app)
+@CrossOrigin(value = "http://localhost:5173", allowCredentials = "true" )
 public class AuthController {
 
     private final AuthService authService;
@@ -22,16 +23,30 @@ public class AuthController {
     }
 
     //Insert a new user (POST request)
-    @PostMapping("/register") //Requests ending in /auth/register will invoke this method
-    public ResponseEntity<OutgoingUserDTO> registerUser(@RequestBody User user){
+    @PostMapping("/register")
+    public ResponseEntity<UserDTO> registerUser(@RequestBody User user){
 
-        //Send the User data to the service (which will send it to the DAO)
-        OutgoingUserDTO returnedUser = authService.registerUser(user);
+        UserDTO returnedUser = authService.registerUser(user);
 
         //Send the inserted User back to the client
         return ResponseEntity.ok(returnedUser);
-        //.ok() sends a 200 OK status code and allows us to send a response body
-        
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO, HttpSession session) {
+        //NOTE: we have an HttpSession coming in through parameter, implicityly included in every HTTP request
+        //Login is the main place we'll use it
+
+        UserDTO loggedInUser = authService.login(loginDTO);
+
+        //If we get here, the login was successful - we can build up the User's session!
+        session.setAttribute("userId", loggedInUser.getUserId());
+        session.setAttribute("username", loggedInUser.getUsername());
+        session.setAttribute("role", loggedInUser.getRole());
+
+        System.out.println("User " + session.getAttribute("username") + " has logged in!");
+
+        return ResponseEntity.ok(loggedInUser);
     }
 
 }

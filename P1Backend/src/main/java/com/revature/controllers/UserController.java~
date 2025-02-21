@@ -1,7 +1,8 @@
 package com.revature.controllers;
 
 import com.revature.aspects.ManagerOnly;
-import com.revature.models.DTOs.UserDTO;
+import com.revature.models.DTOs.OutgoingUserDTO;
+import com.revature.models.User;
 import com.revature.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class UserController {
 
     @ManagerOnly
     @GetMapping //This method will handle GET requests
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<OutgoingUserDTO>> getAllUsers() {
         //Let's return the users in one line
         return ResponseEntity.ok(userService.getAllUsers());
     }

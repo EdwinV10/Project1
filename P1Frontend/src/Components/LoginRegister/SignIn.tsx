@@ -25,7 +25,6 @@ export const SignIn: React.FC = () => {
         })
     }
 
-
     return(
         <Container>
           <div>
@@ -54,8 +53,4 @@ export const SignIn: React.FC = () => {
           </div>
       </Container>
   )
-
-
-
-
 }
