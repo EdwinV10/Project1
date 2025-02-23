@@ -1,13 +1,15 @@
 import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Button, Container, Table } from "react-bootstrap";
+import { Button, Collapse, Container, Table } from "react-bootstrap";
 import { User } from "../../Interfaces/User";
 import UserReimbursementsTable from "../Reimbursements/UserReimbursementTable";
 import { useNavigate } from "react-router-dom";
+import { store } from "../../GlobalData/store";
 
 export const UserTable: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number>(0);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,8 +63,22 @@ export const UserTable: React.FC = () => {
 
   return (
     <Container className="d-flex flex-column align-items-center mt-5">
-      <h3>Users: </h3>
+      <div className="position-absolute top-0 end-0">
+        <Button variant="info" onClick={() => setOpen(!open)}>
+          {open ? "Hide User Info" : "Show User Info"}
+        </Button>
+        <Collapse in={open}>
+          <div className="mt-2">
+            {/* User information content goes here */}
+            <p>User Name: {store.loggedInUser.username}</p>
+            <p>User ID: {store.loggedInUser.userId}</p>
+            <p>First Name : {store.loggedInUser.firstName}</p>
+            <p>Last Name : {store.loggedInUser.lastName}</p>
+          </div>
+        </Collapse>
+      </div>
 
+      <h3>Users: </h3>
       <Table className="table-dark table-hover table-striped w-50">
         <thead>
           <tr>
@@ -104,10 +120,7 @@ export const UserTable: React.FC = () => {
       >
         View My Reimbursements
       </Button>
-      <Button
-        variant="outline-primary"
-        onClick={() => handleRowClick(0)}
-      >
+      <Button variant="outline-primary" onClick={() => handleRowClick(0)}>
         View All Reimbursements
       </Button>
       {<UserReimbursementsTable userId={selectedUserId} />}

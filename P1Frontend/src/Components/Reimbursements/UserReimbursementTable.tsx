@@ -1,16 +1,23 @@
 // UserReimbursementsTable.js
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Reimbursement } from "../../Interfaces/Reimbursement";
-import { Button, Container, Table } from "react-bootstrap";
-import { User } from "../../Interfaces/User";
+import { Button, Container, Tab, Table, Tabs } from "react-bootstrap";
 
 const UserReimbursementsTable = ({ userId }: { userId: number }) => {
   const [reimbursements, setReimbursements] = useState<Reimbursement[]>([]);
+  const [filteredReimbursements, setFilteredReimbursements] = useState<Reimbursement[]>([]);
+  const [status, setStatus] = useState<string>("all");
 
   useEffect(() => {
     fetchReimbursements();
   }, [userId]);
+
+    useEffect(() => {
+      if (reimbursements.length > 0 && filteredReimbursements.length === 0) {
+        handleStatusChange("all");
+      }
+    }, [reimbursements]);
 
   const fetchReimbursements = async () => {
     const response = await axios.get(
@@ -19,7 +26,6 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
         : `http://localhost:8080/reimbursement?userId=${userId}`,
       { withCredentials: true }
     );
-    console.log(response.data);
     setReimbursements(response.data);
   };
 
@@ -34,6 +40,7 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
         { withCredentials: true }
       );
       fetchReimbursements();
+      handleStatusChange("approved");
     } catch (error) {
       alert("Something went wrong. Try again.");
     }
@@ -50,60 +57,99 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
         { withCredentials: true }
       );
       fetchReimbursements();
+      handleStatusChange("denied");
     } catch (error) {
       alert("Something went wrong. Try again.");
     }
   };
 
-  const sortedReimbursements = reimbursements.sort(
+  const handleStatusChange = (status: string) => {
+    setStatus(status);
+    const filteredReimbursements = reimbursements.filter((reimbursement) => {
+      if (status === "all") return true;
+      return reimbursement.status === status;
+    });
+    setFilteredReimbursements(filteredReimbursements);
+  };
+
+  const sortedReimbursements = filteredReimbursements.sort(
     (a, b) => a.reimbursementId - b.reimbursementId
   );
 
   return (
-    <Container className="d-flex flex-column align-items-center mt-5">
-      {reimbursements === null || reimbursements.length === 0 ? (
+    <div>
+      {sortedReimbursements === null || sortedReimbursements.length === 0 ? (
         <p>No reimbursements found.</p>
       ) : (
-        <Table>
-          <thead>
-            <tr>
-              <th>Reimbursement ID</th>
-              <th>Amount in Dollars</th>
-              <th>Description</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedReimbursements.map((reimbursement) => (
-              <tr key={reimbursement.reimbursementId}>
-                <td>{reimbursement.reimbursementId}</td>
-                <td>{reimbursement.amount}</td>
-                <td>{reimbursement.description}</td>
-                <td>{reimbursement.status}</td>
-                <td>
-                  <Button
-                    variant="outline-success"
-                    onClick={() =>
-                      approveReimbursement(reimbursement.reimbursementId)
-                    }
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    onClick={() =>
-                      denyReimbursement(reimbursement.reimbursementId)
-                    }
-                  >
-                    Deny
-                  </Button>
-                </td>
+        <Container className="d-flex flex-column align-items-center mt-5">
+          <Tabs
+            defaultActiveKey="all"
+            id="reimbursement-tabs"
+            className="mb-3"
+            onSelect={(k) => handleStatusChange(k as string)}
+          >
+            <Tab eventKey="all" title="All"></Tab>
+            <Tab eventKey="pending" title="Pending"></Tab>
+            <Tab eventKey="approved" title="Approved"></Tab>
+            <Tab eventKey="denied" title="Denied"></Tab>
+          </Tabs>
+
+          <h3>
+            {status === "all"
+              ? "All Reimbursements "
+              : status === "pending"
+              ? "All Pending Reimbursements "
+              : status === "approved"
+              ? "All Approved Reimbursements "
+              : status === "denied"
+              ? "All Denied Reimbursements "
+              : ""}
+              for {userId === 0 ? "all Users" : `User ${userId}`}
+          </h3>
+
+          <Table>
+            <thead>
+              <tr>
+                <th>Reimbursement ID</th>
+                <th>User ID</th>
+                <th>Amount in Dollars</th>
+                <th>Description</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {sortedReimbursements.map((reimbursement) => (
+                <tr key={reimbursement.reimbursementId}>
+                  <td>{reimbursement.reimbursementId}</td>
+                  <td>{reimbursement.user.userId}</td>
+                  <td>{reimbursement.amount}</td>
+                  <td>{reimbursement.description}</td>
+                  <td>{reimbursement.status}</td>
+                  <td>
+                    <Button
+                      variant="outline-success"
+                      onClick={() =>
+                        approveReimbursement(reimbursement.reimbursementId)
+                      }
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      onClick={() =>
+                        denyReimbursement(reimbursement.reimbursementId)
+                      }
+                    >
+                      Deny
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Container>
       )}
-    </Container>
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Reimbursement } from "../../Interfaces/Reimbursement";
 import axios from "axios";
-import { Button, Container, Tab, Table, Tabs } from "react-bootstrap";
+import { Button, Collapse, Container, Tab, Table, Tabs } from "react-bootstrap";
 import { store } from "../../GlobalData/store";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,7 @@ export const ReimbursementTable: React.FC = () => {
   const [reimbursements, setReimbursements] = useState<Reimbursement[]>([]);
   const [filteredReimbursements, setFilteredReimbursements] = useState<Reimbursement[]>([]);
   const [status, setStatus] = useState<string>("all");
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   //useEffect is a hook that runs after the first render of the component
@@ -46,11 +47,25 @@ export const ReimbursementTable: React.FC = () => {
       return reimbursement.status === status;
     });
     setFilteredReimbursements(filteredReimbursements);
-    console.log(filteredReimbursements);
   };
 
   return (
     <Container className="d-flex flex-column align-items-center mt-5">
+      <div className="position-absolute top-0 end-0">
+        <Button variant="info" onClick={() => setOpen(!open)}>
+          {open ? "Hide User Info" : "Show User Info"}
+        </Button>
+        <Collapse in={open}>
+          <div className="mt-2">
+            {/* User information content goes here */}
+            <p>User Name: {store.loggedInUser.username}</p>
+            <p>User ID: {store.loggedInUser.userId}</p>
+            <p>First Name : {store.loggedInUser.firstName}</p>
+            <p>Last Name : {store.loggedInUser.lastName}</p>
+          </div>
+        </Collapse>
+      </div>
+
       <Tabs
         defaultActiveKey="all"
         id="reimbursement-tabs"
@@ -86,7 +101,9 @@ export const ReimbursementTable: React.FC = () => {
         </thead>
 
         <tbody className="table-secondary">
-          {filteredReimbursements.sort((a, b) => a.reimbursementId - b.reimbursementId).map((filteredReimbursements: Reimbursement) => (
+          {filteredReimbursements
+            .sort((a, b) => a.reimbursementId - b.reimbursementId)
+            .map((filteredReimbursements: Reimbursement) => (
               <tr key={filteredReimbursements.reimbursementId}>
                 <td>{filteredReimbursements.reimbursementId}</td>
                 <td>{filteredReimbursements.description}</td>
@@ -103,10 +120,10 @@ export const ReimbursementTable: React.FC = () => {
         New Reimbursement
       </Button>
       {store.loggedInUser.role === "manager" && (
-              <Button variant="outline-secondary" onClick={() => navigate("/users")}>
-                Go Back
-              </Button>
-            )}
+        <Button variant="outline-secondary" onClick={() => navigate("/users")}>
+          Go Back
+        </Button>
+      )}
     </Container>
   );
 };
