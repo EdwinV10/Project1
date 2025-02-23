@@ -14,6 +14,6 @@ public class P1BackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(P1BackendApplication.class, args);
-		System.out.println("Video Game Management App is running");
+		System.out.println("Reimbursement Management App is running");
 	}
 }

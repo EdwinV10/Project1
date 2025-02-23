@@ -10,4 +10,6 @@ public interface ReimbursementDAO extends JpaRepository<Reimbursement, Integer> 
 
     //Find a list of reimbursements by their User's id
     List<Reimbursement> findByUser_UserId(int userId);
+    //Delete a reimbursement by their user id
+    public void deleteByReimbursementId(int userId);
 }

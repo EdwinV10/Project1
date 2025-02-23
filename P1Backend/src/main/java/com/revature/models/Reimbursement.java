@@ -3,8 +3,8 @@ package com.revature.models;
 import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
-@Component //Make the class a bean
-@Entity //This makes the class a DB entity
+@Component
+@Entity
 @Table(name = "reimbursements")
 public class Reimbursement {
 

@@ -3,13 +3,13 @@ package com.revature.services;
 import com.revature.DAOs.ReimbursementDAO;
 import com.revature.DAOs.UserDAO;
 import com.revature.models.DTOs.IncomingReimbursementDTO;
+import com.revature.models.DTOs.IncomingReimbursementStatusDTO;
 import com.revature.models.DTOs.OutgoingReimbursementDTO;
 import com.revature.models.DTOs.UserDTO;
 import com.revature.models.Reimbursement;
 import com.revature.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +25,15 @@ public class ReimbursementService {
         this.reimbursementDAO = reimbursementDAO;
     }
 
-    //Insert a new game into the DB(get user by ID and make a game object with it)
+    //Insert a new reimbursement into the DB(get user by ID and make a reimbursement object)
     public Reimbursement insertReimbursement(IncomingReimbursementDTO reimbursementDTO) {
 
-        //TODO: input validation
+        if(reimbursementDTO.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0!");
+        }
+        if(reimbursementDTO.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Description cannot be empty!");
+        }
 
         Reimbursement newReimbursement = new Reimbursement(
                 0,
@@ -41,40 +46,140 @@ public class ReimbursementService {
         Optional<User> user = userDAO.findById(reimbursementDTO.getUserId());
 
         //If the user doesn't exist it will be empty
-        if(user.isEmpty()){
-            //TODO: throw an exception
-        }else{
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("User does not exist!");
+        } else {
             newReimbursement.setUser(user.get());
         }
 
         return reimbursementDAO.save(newReimbursement);
     }
 
-    //TODO: get all reimbursements by User ID
+    //Get all reimbursements from a user
     public List<OutgoingReimbursementDTO> getAllReimbursementByUserId(int userId) {
-        List<Reimbursement> reimbursements = reimbursementDAO.findByUser_UserId(userId);
+        if(userId <= 0) {
+            throw new IllegalArgumentException("User ID is invalid!");
+        }
 
+        //Get List of all reimbursements
+        List<Reimbursement> reimbursements = reimbursementDAO.findByUser_UserId(userId);
+        //Create List of OutgoingReimbursementDTO to store return elements
         List<OutgoingReimbursementDTO> returnDTO = new ArrayList<>();
+
         for (Reimbursement reimbursement : reimbursements) {
             //Create OutgoingReimbursementDTO and set attributes
-            OutgoingReimbursementDTO dto = new OutgoingReimbursementDTO();
-            dto.setReimbursementId(reimbursement.getReimbursementId());
-            dto.setDescription(reimbursement.getDescription());
-            dto.setAmount(reimbursement.getAmount());
-            dto.setStatus(reimbursement.getStatus());
+            OutgoingReimbursementDTO reimbursementDTO = new OutgoingReimbursementDTO(
+                    reimbursement.getReimbursementId(),
+                    reimbursement.getDescription(),
+                    reimbursement.getAmount(),
+                    reimbursement.getStatus(),
+                    null
+            );
             //Create UserDTO and set it to User attribute in OutgoingReimbursementDTO
-            UserDTO user = new UserDTO();
-            user.setUserId(reimbursement.getUser().getUserId());
-            user.setFirstName(reimbursement.getUser().getFirstName());
-            user.setLastName(reimbursement.getUser().getLastName());
-            user.setUsername(reimbursement.getUser().getUsername());
-            user.setRole(reimbursement.getUser().getRole());
-            dto.setUser(user);
-            returnDTO.add(dto);
+            UserDTO userDTO = new UserDTO(
+                    reimbursement.getUser().getUserId(),
+                    reimbursement.getUser().getFirstName(),
+                    reimbursement.getUser().getLastName(),
+                    reimbursement.getUser().getUsername(),
+                    reimbursement.getUser().getRole()
+            );
+            reimbursementDTO.setUser(userDTO);
+            returnDTO.add(reimbursementDTO);
         }
         return returnDTO;
     }
 
+    //Get all reimbursements from every user. Can only be used by a manager
+    public List<OutgoingReimbursementDTO> getAllReimbursements() {
+        //Get List of all reimbursements
+        List<Reimbursement> reimbursements = reimbursementDAO.findAll();
+        //Create List of OutgoingReimbursementDTO to store return elements
+        List<OutgoingReimbursementDTO> returnDTO = new ArrayList<>();
 
-    
+        for (Reimbursement reimbursement : reimbursements) {
+            //Create OutgoingReimbursementDTO and set attributes
+            OutgoingReimbursementDTO reimbursementDTO = new OutgoingReimbursementDTO(
+                    reimbursement.getReimbursementId(),
+                    reimbursement.getDescription(),
+                    reimbursement.getAmount(),
+                    reimbursement.getStatus(),
+                    null
+            );
+            //Create UserDTO and set it to User attribute in OutgoingReimbursementDTO
+            UserDTO userDTO = new UserDTO(
+                    reimbursement.getUser().getUserId(),
+                    reimbursement.getUser().getFirstName(),
+                    reimbursement.getUser().getLastName(),
+                    reimbursement.getUser().getUsername(),
+                    reimbursement.getUser().getRole()
+            );
+            reimbursementDTO.setUser(userDTO);
+            returnDTO.add(reimbursementDTO);
+        }
+        return returnDTO;
+    }
+
+    //Get all pending reimbursements from every user. Can only be used by a manager
+    public List<OutgoingReimbursementDTO> getAllPendingReimbursements() {
+        //Get List of all reimbursements
+        List<Reimbursement> reimbursements = reimbursementDAO.findAll();
+        //Create List of OutgoingReimbursementDTO to store return elements
+        List<OutgoingReimbursementDTO> returnDTO = new ArrayList<>();
+
+        for (Reimbursement reimbursement : reimbursements) {
+            if(reimbursement.getStatus().equals("pending")) {
+                //Create OutgoingReimbursementDTO and set attributes
+                OutgoingReimbursementDTO reimbursementDTO = new OutgoingReimbursementDTO(
+                        reimbursement.getReimbursementId(),
+                        reimbursement.getDescription(),
+                        reimbursement.getAmount(),
+                        reimbursement.getStatus(),
+                        null
+                );
+                //Create UserDTO and set it to User attribute in OutgoingReimbursementDTO
+                UserDTO userDTO = new UserDTO(
+                        reimbursement.getUser().getUserId(),
+                        reimbursement.getUser().getFirstName(),
+                        reimbursement.getUser().getLastName(),
+                        reimbursement.getUser().getUsername(),
+                        reimbursement.getUser().getRole()
+                );
+                reimbursementDTO.setUser(userDTO);
+                returnDTO.add(reimbursementDTO);
+            }
+        }
+        return returnDTO;
+    }
+
+    //Update a reimbursement with a new status
+    public OutgoingReimbursementDTO updateReimbursementStatus(IncomingReimbursementStatusDTO newStatus) {
+        if(newStatus.getReimbursementId() <= 0) {
+            throw new IllegalArgumentException("Reimbursement ID is invalid!");
+        }
+        if(newStatus.getStatus().isBlank()) {
+            throw new IllegalArgumentException("Status cannot be empty!");
+        }
+        Reimbursement reimbursement = reimbursementDAO.findById(newStatus.getReimbursementId()).get();
+        reimbursement.setStatus(newStatus.getStatus());
+        reimbursementDAO.save(reimbursement);
+
+        OutgoingReimbursementDTO reimbursementDTO = new OutgoingReimbursementDTO(
+                reimbursement.getReimbursementId(),
+                reimbursement.getDescription(),
+                reimbursement.getAmount(),
+                reimbursement.getStatus(),
+                null
+        );
+        //Create UserDTO and set it to User attribute in OutgoingReimbursementDTO
+        UserDTO userDTO = new UserDTO(
+                reimbursement.getUser().getUserId(),
+                reimbursement.getUser().getFirstName(),
+                reimbursement.getUser().getLastName(),
+                reimbursement.getUser().getUsername(),
+                reimbursement.getUser().getRole()
+        );
+        reimbursementDTO.setUser(userDTO);
+
+        return reimbursementDTO;
+    }
 }

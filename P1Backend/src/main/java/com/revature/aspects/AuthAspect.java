@@ -34,7 +34,7 @@ public class AuthAspect {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attributes.getRequest().getSession(false);
 
-        if(session == null){
+        if(session == null|| session.getAttribute("userId") == null){
             throw new IllegalArgumentException("User must be logged in to do this");
         }
 
@@ -44,5 +44,4 @@ public class AuthAspect {
             throw new IllegalArgumentException("User must be an admin to do this!");
         }
     }
-
 }

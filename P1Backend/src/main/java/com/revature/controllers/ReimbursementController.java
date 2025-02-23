@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.aspects.ManagerOnly;
 import com.revature.models.DTOs.IncomingReimbursementDTO;
 import com.revature.models.DTOs.OutgoingReimbursementDTO;
 import com.revature.models.DTOs.UserDTO;
@@ -25,7 +26,6 @@ public class ReimbursementController {
 
     @PostMapping
     public ResponseEntity<Reimbursement> insertReimbursement(@RequestBody IncomingReimbursementDTO remDTO) {
-
         return ResponseEntity.accepted().body(reimbursementService.insertReimbursement(remDTO));
     }
 
@@ -33,5 +33,4 @@ public class ReimbursementController {
     public ResponseEntity<List<OutgoingReimbursementDTO>> getAllReimbursements(@RequestParam("userId") int userId) {
         return ResponseEntity.ok(reimbursementService.getAllReimbursementByUserId(userId));
     }
-
 }

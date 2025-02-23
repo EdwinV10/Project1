@@ -26,16 +26,23 @@ export const Register: React.FC = () => {
 
     const register = async () => {
         //POST request with hardcoded user info
-        try{
-            const response = await axios.post("http://localhost:8080/auth/register", {
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            password: password
-            })
-            navigate("/login")
-        }catch{
-            alert("Something went wrong trying to register")
+        try {
+          const response = await axios.post(
+            "http://localhost:8080/auth/register",
+            {
+              firstName: firstName,
+              lastName: lastName,
+              username: username,
+              password: password,
+            }
+          );
+          navigate("/login");
+        } catch (error: any) {
+          if (error.response) {
+            alert(`Error: ${error.response.data}`);
+          } else {
+            alert("Something went wrong. Try again.");
+          }
         }
     }
 

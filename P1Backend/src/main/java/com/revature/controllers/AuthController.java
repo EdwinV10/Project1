@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth") //Requests ending in /auth will go to this Controller
 @CrossOrigin(value = "http://localhost:5173", allowCredentials = "true" )
 public class AuthController {
-
     private final AuthService authService;
 
     @Autowired
@@ -25,18 +24,13 @@ public class AuthController {
     //Insert a new user (POST request)
     @PostMapping("/register")
     public ResponseEntity<UserDTO> registerUser(@RequestBody User user){
-
         UserDTO returnedUser = authService.registerUser(user);
 
-        //Send the inserted User back to the client
         return ResponseEntity.ok(returnedUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO, HttpSession session) {
-        //NOTE: we have an HttpSession coming in through parameter, implicityly included in every HTTP request
-        //Login is the main place we'll use it
-
         UserDTO loggedInUser = authService.login(loginDTO);
 
         //If we get here, the login was successful - we can build up the User's session!
