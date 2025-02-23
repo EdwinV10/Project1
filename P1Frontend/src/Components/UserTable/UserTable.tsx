@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { Button, Container, Table } from "react-bootstrap";
 import { User } from "../../Interfaces/User";
 import UserReimbursementsTable from "../Reimbursements/UserReimbursementTable";
+import { useNavigate } from "react-router-dom";
 
 export const UserTable: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllUsers();
@@ -55,6 +57,8 @@ export const UserTable: React.FC = () => {
     }
   };
 
+    const sortedUsers = users.sort((a, b) => a.userId - b.userId);
+
   return (
     <Container className="d-flex flex-column align-items-center mt-5">
       <h3>Users: </h3>
@@ -72,7 +76,7 @@ export const UserTable: React.FC = () => {
         </thead>
 
         <tbody className="table-secondary">
-          {users.map((user: User) => (
+          {sortedUsers.map((user: User) => (
             <tr key={user.userId} onClick={() => handleRowClick(user.userId)}>
               <td>{user.userId}</td>
               <td>{user.firstName}</td>
@@ -94,7 +98,19 @@ export const UserTable: React.FC = () => {
           ))}
         </tbody>
       </Table>
-      {selectedUserId && <UserReimbursementsTable userId={selectedUserId} />}
+      <Button
+        variant="outline-primary"
+        onClick={() => navigate("/reimbursement")}
+      >
+        View My Reimbursements
+      </Button>
+      <Button
+        variant="outline-primary"
+        onClick={() => handleRowClick(0)}
+      >
+        View All Reimbursements
+      </Button>
+      {<UserReimbursementsTable userId={selectedUserId} />}
     </Container>
   );
 };

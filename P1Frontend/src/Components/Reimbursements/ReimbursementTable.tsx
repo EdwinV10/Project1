@@ -20,7 +20,7 @@ export const ReimbursementTable: React.FC = () => {
     if (reimbursements.length > 0 && filteredReimbursements.length === 0) {
       handleStatusChange("all");
     }
-  }, [reimbursements, filteredReimbursements]);
+  }, [reimbursements]);
 
   //Function to get all users from the backend (HTTP request)
   const getReimbursements = async () => {
@@ -102,6 +102,11 @@ export const ReimbursementTable: React.FC = () => {
       >
         New Reimbursement
       </Button>
+      {store.loggedInUser.role === "manager" && (
+              <Button variant="outline-secondary" onClick={() => navigate("/users")}>
+                Go Back
+              </Button>
+            )}
     </Container>
   );
 };

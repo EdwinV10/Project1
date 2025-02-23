@@ -33,4 +33,5 @@ public class ReimbursementController {
     public ResponseEntity<List<OutgoingReimbursementDTO>> getAllReimbursements(@RequestParam("userId") int userId) {
         return ResponseEntity.ok(reimbursementService.getAllReimbursementByUserId(userId));
     }
+
 }
