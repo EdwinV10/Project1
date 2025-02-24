@@ -6,18 +6,30 @@ import { Button, Container, Tab, Table, Tabs } from "react-bootstrap";
 
 const UserReimbursementsTable = ({ userId }: { userId: number }) => {
   const [reimbursements, setReimbursements] = useState<Reimbursement[]>([]);
-  const [filteredReimbursements, setFilteredReimbursements] = useState<Reimbursement[]>([]);
+  const [filteredReimbursements, setFilteredReimbursements] = useState<
+    Reimbursement[]
+  >([]);
   const [status, setStatus] = useState<string>("all");
 
   useEffect(() => {
+    console.log("userId changed:", userId);
     fetchReimbursements();
   }, [userId]);
 
-    useEffect(() => {
-      if (reimbursements.length > 0 && filteredReimbursements.length === 0) {
-        handleStatusChange("all");
-      }
-    }, [reimbursements]);
+  useEffect(() => {
+    if (reimbursements.length > 0 && filteredReimbursements.length === 0) {
+      handleStatusChange("all");
+    }
+  }, [reimbursements]);
+
+  useEffect(() => {
+    if (userId !== 0) {
+      const filteredReimbursements = reimbursements.filter((reimbursement) => reimbursement.user.userId === userId);
+      setFilteredReimbursements(filteredReimbursements);
+    } else {
+      setFilteredReimbursements(reimbursements);
+    }
+  }, [userId,]);
 
   const fetchReimbursements = async () => {
     const response = await axios.get(
@@ -40,7 +52,7 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
         { withCredentials: true }
       );
       fetchReimbursements();
-      handleStatusChange("approved");
+      handleStatusChange(status);
     } catch (error) {
       alert("Something went wrong. Try again.");
     }
@@ -57,7 +69,7 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
         { withCredentials: true }
       );
       fetchReimbursements();
-      handleStatusChange("denied");
+      handleStatusChange(status);
     } catch (error) {
       alert("Something went wrong. Try again.");
     }
@@ -65,11 +77,13 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
 
   const handleStatusChange = (status: string) => {
     setStatus(status);
-    const filteredReimbursements = reimbursements.filter((reimbursement) => {
+    const tempReimbursements = reimbursements.filter((reimbursement) => {
       if (status === "all") return true;
       return reimbursement.status === status;
     });
-    setFilteredReimbursements(filteredReimbursements);
+    console.log("Temp reimbursements:", tempReimbursements);
+    setFilteredReimbursements(tempReimbursements);
+    console.log("Filtered reimbursements:", filteredReimbursements);
   };
 
   const sortedReimbursements = filteredReimbursements.sort(
@@ -104,10 +118,10 @@ const UserReimbursementsTable = ({ userId }: { userId: number }) => {
               : status === "denied"
               ? "All Denied Reimbursements "
               : ""}
-              for {userId === 0 ? "all Users" : `User ${userId}`}
+            for {userId === 0 ? "all Users" : `User ${userId}`}
           </h3>
 
-          <Table>
+          <Table key={userId}>
             <thead>
               <tr>
                 <th>Reimbursement ID</th>

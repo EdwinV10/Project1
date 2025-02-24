@@ -57,7 +57,7 @@ public class ReimbursementService {
 
     //Get all reimbursements from a user
     public List<OutgoingReimbursementDTO> getAllReimbursementByUserId(int userId) {
-        if(userId <= 0) {
+        if(userId < 0) {
             throw new IllegalArgumentException("User ID is invalid!");
         }
 

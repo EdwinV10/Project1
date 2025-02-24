@@ -34,6 +34,7 @@ export const ReimbursementTable: React.FC = () => {
     } catch (error: any) {
       if (error.response) {
         alert(`Error: ${error.response.data}`);
+        navigate("/")
       } else {
         alert("Something went wrong. Try again.");
       }

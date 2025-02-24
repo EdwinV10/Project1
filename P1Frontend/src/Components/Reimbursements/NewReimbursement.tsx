@@ -32,6 +32,7 @@ export const NewReimbursement: React.FC = () => {
     } catch (error: any) {
       if (error.response) {
         alert(`Error: ${error.response.data}`);
+        navigate("/");
       } else {
         alert("Something went wrong. Try again.");
       }
@@ -42,7 +43,7 @@ export const NewReimbursement: React.FC = () => {
     <Container className="d-flex flex-column align-items-center mt-5">
       <h2>New Reimbursement</h2>
       <input
-        type="text"
+        type="number"
         className="form-control"
         placeholder="Amount"
         onChange={storeAmount}

@@ -25,21 +25,10 @@ export const UserTable: React.FC = () => {
     } catch (error: any) {
       if (error.response) {
         alert(`Error: ${error.response.data}`);
+        navigate("/");
       } else {
         alert("Something went wrong trying to fetch users");
       }
-    }
-  };
-
-  const promoteUser = async (user: User) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:8080/users/${user.userId}/promote`,
-        { withCredentials: true }
-      );
-      // Handle success response
-    } catch (error) {
-      // Handle error response
     }
   };
 
@@ -100,12 +89,6 @@ export const UserTable: React.FC = () => {
               <td>{user.username}</td>
               <td>{user.role}</td>
               <td>
-                <Button
-                  variant="outline-success"
-                  onClick={() => promoteUser(user)}
-                >
-                  Promote
-                </Button>
                 <Button variant="outline-danger" onClick={() => fireUser(user)}>
                   Fire
                 </Button>
